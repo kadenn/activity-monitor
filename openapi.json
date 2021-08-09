@@ -1,0 +1,278 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Activity Monitor",
+    "description": "Server for ActivityMonitor. REST API built with Micronaut and written in Java.",
+    "contact": {
+      "email": "bilgi@galaksiya.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "45.76.85.26"
+    }
+  ],
+  "tags": [
+    {
+      "name": "user",
+      "description": "Basic information about users."
+    },
+    {
+      "name": "active-window",
+      "description": "Keeps track of currently active application and the title of its window every second."
+    },
+    {
+      "name": "screenshot",
+      "description": "Captures entire screen as PNG image and converts it to base64-encoded string"
+    }
+  ],
+  "paths": {
+    "/user/list": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Returns a list of all users and information about them.",
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "description": "List of all users returned successfuly.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user-list-response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User does not exist.",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/active-window-logs": {
+      "post": {
+        "tags": [
+          "active-window"
+        ],
+        "summary": "Returns active windows with given MAC_address between given dates.",
+        "operationId": "getActiveWindows",
+        "requestBody": {
+          "description": "One or more properties must be given.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/query-post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Active windows returned successfuly.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/active-window-response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. MAC_address and computer_name must be a string.",
+            "content": {}
+          },
+          "404": {
+            "description": "Active windows not found",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/screenshots": {
+      "post": {
+        "tags": [
+          "screenshot"
+        ],
+        "summary": "Returns information of screenshots with given MAC address between given dates.",
+        "operationId": "getScreenshots",
+        "requestBody": {
+          "description": "One or more properties must be given.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/query-post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Screenshot/s not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/screenshot-response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Screenshot/s not found.",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/screenshot/{ss_title}": {
+      "get": {
+        "tags": [
+          "screenshot"
+        ],
+        "summary": "Returns an PNG image of given ss_title.",
+        "operationId": "getImage",
+        "parameters": [
+          {
+            "name": "ss_title",
+            "in": "path",
+            "description": "Title of screenshot to return.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Screenshot returned successfuly.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ss_title supplied.",
+            "content": {}
+          },
+          "404": {
+            "description": "Screenshot does not exist.",
+            "content": {}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "query-post": {
+        "type": "object",
+        "properties": {
+          "MAC_address": {
+            "type": "string"
+          },
+          "computer_name": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        },
+        "description": "One or more properties must be used."
+      },
+      "user-query-post": {
+        "type": "object",
+        "properties": {
+          "MAC_address": {
+            "type": "string"
+          },
+          "computer_name": {
+            "type": "string"
+          }
+        },
+        "description": "One or more properties must be used."
+      },
+      "user-list-response": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "MAC_address": {
+              "type": "string"
+            },
+            "computer_name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "active-window-response": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "MAC_address": {
+              "type": "string"
+            },
+            "computer_name": {
+              "type": "string"
+            },
+            "request_date": {
+              "type": "string"
+            },
+            "active_windows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "app": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "screenshot-response": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "MAC_address": {
+              "type": "string"
+            },
+            "computer_name": {
+              "type": "string"
+            },
+            "request_date": {
+              "type": "string"
+            },
+            "screenshot_title": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
